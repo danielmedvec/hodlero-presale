@@ -35,7 +35,14 @@ body {
     /* position: absolute; */
 }
 
-.logo {
+.header-logo-holder>div {
+    height: 125px;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 130px;
+}
+
+.logo-custom {
     height: 170px;
     width: 50%;
     object-fit: contain;
