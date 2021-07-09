@@ -568,10 +568,14 @@ const Home = () => {
   };
 
   const onClick = async () => {
-    if (ls('disconnected') === true) {
-      signIn();
+    if (ls('disconnected') !== null) {
+      if (ls('disconnected') === true) {
+        signIn();
+      } else {
+        //already signed in.
+      }
     } else {
-      //already signed in.
+      signIn();
     }
   };
   const claimBNB = async () => {
