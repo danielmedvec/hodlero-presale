@@ -11,6 +11,7 @@ import NumericLabel from "react-pretty-numbers";
 import { address, abi } from "../contract";
 import mitt from "next/dist/next-server/lib/mitt";
 import swal from '@sweetalert/with-react'
+import Image from 'next/image'
 var ls = require("local-storage");
 
 const Home = () => {
@@ -715,7 +716,7 @@ const Home = () => {
         {presaleDetails.status}
       </div>
       <div className="header-logo-holder">
-        <img className="logo" src="/img/large.png" />
+        <Image className="logo" src="/img/large.png" alt="Hodlero logo" />
       </div>
       <div className="logo-text">HODLERO</div>
       <div className="logo-text-presale">PRESALE</div>
