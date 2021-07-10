@@ -203,7 +203,7 @@ const Home = () => {
 
   const startListening = async () => {
     let web3 = await new Web3(new Web3.providers.WebsocketProvider(
-      "wss://apis.ankr.com/wss/c3450050942c4bc8ad2a8a13c35a0cc0/b63b9be5561df87fccd7db4624611bd7/binance/full/test", {
+      "wss://eth.getblock.io/testnet/?api_key=7632bad5-ce1e-4eb7-9574-bd7ce23596b2", {
       reconnect: {
         auto: true,
         delay: 5000, // ms
