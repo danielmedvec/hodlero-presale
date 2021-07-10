@@ -16,7 +16,7 @@ var ls = require("local-storage");
 
 const mainWeb3Provider = new ethers.providers.Web3Provider(
   new Web3.providers.HttpProvider(
-    "https://bsc-dataseed.binance.org/"
+    "https://data-seed-prebsc-1-s1.binance.org:8545/"
   )
 );
 
@@ -123,7 +123,7 @@ const Home = () => {
         package: WalletConnectProvider,
         display: { name: "Trust Wallet/MetaMask/Mobile" },
         options: {
-          rpc: { 56: "https://bsc-dataseed.binance.org" },
+          rpc: { 56: "https://bsc-dataseed1.ninicoin.io" },
           network: "binance",
           infuraId: "infura key",
         },
@@ -203,7 +203,7 @@ const Home = () => {
 
   const startListening = async () => {
     let web3 = await new Web3(new Web3.providers.WebsocketProvider(
-      "wss://bsc-ws-node.nariox.org:443", {
+      "wss://data-seed-prebsc-2-s2.binance.org:8545", {
       reconnect: {
         auto: true,
         delay: 5000, // ms
@@ -741,7 +741,7 @@ const Home = () => {
   return (
     <div className="container">
       <Head>
-        <title>Hodlero.com - Presale (July 10!4PM UTC)</title>
+        <title>Hodlero.com - Presale (July 10! 4PM UTC)</title>
         <meta name="description" content="The webpage where hodlero will conduct their presale." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
