@@ -502,7 +502,7 @@ const Home = () => {
       let _endDate = parseInt(details._endDate);
       let _whitelistedEnd = parseInt(details._whitelistedEndDate);
       let tokensSold = parseInt(details._tokensSOLD);
-      let percentageRaised = (totalRaised / maxCap);
+      let percentageRaised = (totalRaised / maxCap) * 100;
       console.log("Percentage raised: ", percentageRaised)
       console.log("Maxcap: ", maxCap);
       console.log("Mincap: ", minCap);
@@ -560,7 +560,7 @@ const Home = () => {
       let _endDate = parseInt(details._endDate);
       let _whitelistedEnd = parseInt(details._whitelistedEndDate);
       let tokensSold = parseInt(details._tokensSOLD);
-      let percentageRaised = (totalRaised / maxCap);
+      let percentageRaised = (totalRaised / maxCap) * 100;
 
       console.log("Percentage raised: ", percentageRaised)
       console.log("Total raised:" + totalRaised);
