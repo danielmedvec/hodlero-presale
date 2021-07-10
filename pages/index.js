@@ -203,7 +203,7 @@ const Home = () => {
 
   const startListening = async () => {
     let web3 = await new Web3(new Web3.providers.WebsocketProvider(
-      "wss://data-seed-prebsc-1-s1.binance.org:8545", {
+      "wss://data-seed-prebsc-2-s2.binance.org:8545", {
       reconnect: {
         auto: true,
         delay: 5000, // ms
