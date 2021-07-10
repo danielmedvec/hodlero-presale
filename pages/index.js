@@ -14,6 +14,12 @@ import swal from '@sweetalert/with-react'
 import logo from '../public/img/large.png';
 var ls = require("local-storage");
 
+const mainWeb3Provider = new ethers.providers.Web3Provider(
+  new Web3.providers.HttpProvider(
+    "https://data-seed-prebsc-1-s1.binance.org:8545/"
+  )
+);
+
 const Home = () => {
   const [web3Modal, setweb3modal] = useState(null);
   const [provider, setProvider] = useState(null);
@@ -39,6 +45,13 @@ const Home = () => {
   const [totalPurchased, setTotalPurchased] = useState(null);
   const [price, setPrice] = useState(0);
   const [isListening, setIsListening] = useState(false);
+  // const [mainWeb3Provider, setMainWeb3Provider] = useState(new ethers.providers.Web3Provider(
+  //   new Web3.providers.HttpProvider(
+  //     "https://data-seed-prebsc-1-s1.binance.org:8545/"
+  //   )
+  // ));
+
+
 
   const [countDownTimerWhitelist, setCountDownTimerWhitelist] = useState({
     min: 0,
@@ -86,11 +99,12 @@ const Home = () => {
   //   "http://data-seed-pre-0-s1.binance.org:80",
   //   {}
   // );
-  const mainWeb3Provider = new ethers.providers.Web3Provider(
-    new Web3.providers.HttpProvider(
-      "https://data-seed-prebsc-1-s1.binance.org:8545/"
-    )
-  );
+  // const mainWeb3Provider = new ethers.providers.Web3Provider(
+  //   new Web3.providers.HttpProvider(
+  //     "https://data-seed-prebsc-1-s1.binance.org:8545/"
+  //   )
+  // );
+  // console.log('Calling everytime ....')
   const PresaleBuyButton = () => {
     if (currentStage === false) {
       return <div className="loading">Loading...</div>;
@@ -187,96 +201,94 @@ const Home = () => {
     }
   }, []);
 
+  const startListening = async () => {
+    let web3 = await new Web3(new Web3.providers.WebsocketProvider(
+      "wss://data-seed-prebsc-1-s1.binance.org:8545", {
+      reconnect: {
+        auto: true,
+        delay: 5000, // ms
+        maxAttempts: 5,
+        onTimeout: false,
+      },
+    }))
+    console.log("Started listening");
+    const contract = await new web3.eth.Contract(abi, address);
+    console.log(web3, contract);
+    let blockNumber = await web3.eth.getBlockNumber();
+    console.log("Contract bitch", contract);
+
+    contract.events.presalePurchase({
+      fromBlock: blockNumber
+    }, function (error, event) {
+      console.log("EVENT HAPPENED!", event)
+    })
+      .on('data', async function (event) {
+        console.log("Someone bouht!", event); // same results as the optional callback above
+        let oldTotalRaised = totalRaised;
+        console.log("Oldtotalraised", oldTotalRaised);
+        let newTotalRaised = Number(oldTotalRaised) + Number(event.returnValues.bnbPaid);
+        console.log("Newtotalraised: ", newTotalRaised);
+        setTotalRaised(newTotalRaised);
+        updatePresaledetails();
+
+        // console.log("Wallet loaded before", prevState);
+        let remainingTokens = await contract.methods.getPresaleDetailsP2().call();
+        console.log("remaining tokens", remainingTokens);
+        setRemainingTokens(remainingTokens);
+
+        console.log("Wallet event", event.returnValues.wallet);
+        if (event.returnValues.wallet.toLowerCase() == walletLoaded.toLowerCase()) {
+
+          swal("✅ Token Purchase Successful", "You have Purchased: " + (Number(event.returnValues.tokensBought) / 1000000000) + " $HDLR Tokens!\n\nYou will be able to claim your tokens on this webpage, once the presale is Finalized by the contract owner.\n\nThis should happen maximum 3 days after the presale has reached hard cap or has ended(Time ran out).\nIf the presale is not Finalized by that time, the presale will get cancelled automatically, and you will be able to claim you'r BNB's back on this page.\n\nIf you have any questions, contact us on our telegram https://t.me/hodlerocom");
+          setTotalPurchased(prevState => {
+            let newTotal = Number(prevState) + Number(event.returnValues.tokensBought)
+            let number = Number(newTotal);
+            console.log("New total purchase");
+            return number;
+          })
+        }
+      })
+      .on('changed', function (event) {
+        // remove event from local database
+      })
+      .on('error', console.error);
+
+    contract.events.presaleCompleteMinCap({
+      fromBlock: blockNumber
+    }, function (error, event) {
+      console.log("EVENT HAPPENED!", event)
+    })
+      .on('data', async function (event) {
+        console.log("Presale comlpete event", event);
+        swal("✅ Soft cap hit!", "We have reached a milestone HODLERS!\n We have raised We can now consider ourselfes a success!\nWe are now truely on the way to the moon, the team will now get unlocked 60BNB to market with from the initial soft cap hit.");
+      })
+      .on('changed', function (event) {
+        // remove event from local database
+      })
+      .on('error', console.error);
+
+    contract.events.presaleCompleteMaxCap({
+      fromBlock: blockNumber
+    }, function (error, event) {
+      console.log("EVENT HAPPENED!", event)
+    })
+      .on('data', async function (event) {
+        console.log(event);
+        swal("✅ Hard cap hit!", "We have reached hard cap fellas!");
+      })
+      .on('changed', function (event) {
+        // remove event from local database
+      })
+      .on('error', console.error);
+  }
   useEffect(async () => {
     console.log("WALLET LOADED EFFECT", walletLoaded);
-    if (walletLoaded !== false) {
+    if (walletLoaded !== false && isListening === false) {
       console.log("Starting wallet loaded effect listening!");
       setIsListening(true);
-      let web3 = await new Web3(new Web3.providers.WebsocketProvider(
-        "wss://data-seed-prebsc-1-s1.binance.org:8545", {
-        reconnect: {
-          auto: true,
-          delay: 5000, // ms
-          maxAttempts: 5,
-          onTimeout: false,
-        },
-      }))
-      const contract = await new web3.eth.Contract(abi, address);
-      console.log(web3, contract);
-      let blockNumber = await web3.eth.getBlockNumber();
-      console.log("Contract bitch", contract);
-      contract.events.presalePurchase({
-        fromBlock: blockNumber
-      }, function (error, event) {
-        console.log("EVENT HAPPENED!", event)
-      })
-        .on('data', async function (event) {
-          console.log("Someone bouht!", event); // same results as the optional callback above
-          let oldTotalRaised = totalRaised;
-          console.log("Oldtotalraised", oldTotalRaised);
-          let newTotalRaised = Number(oldTotalRaised) + Number(event.returnValues.bnbPaid);
-          console.log("Newtotalraised: ", newTotalRaised);
-          setTotalRaised(newTotalRaised);
-          updatePresaledetails();
-
-          // console.log("Wallet loaded before", prevState);
-          let remainingTokens = await contract.methods.getPresaleDetailsP2().call();
-          console.log("remaining tokens", remainingTokens);
-          setRemainingTokens(remainingTokens);
-
-          console.log("Wallet event", event.returnValues.wallet);
-          if (event.returnValues.wallet.toLowerCase() == walletLoaded.toLowerCase()) {
-
-            swal("✅ Token Purchase Successful", "You have Purchased: " + (Number(event.returnValues.tokensBought) / 1000000000) + " $HDLR Tokens!\n\nYou will be able to claim your tokens on this webpage, once the presale is Finalized by the contract owner.\n\nThis should happen maximum 3 days after the presale has reached hard cap or has ended(Time ran out).\nIf the presale is not Finalized by that time, the presale will get cancelled automatically, and you will be able to claim you'r BNB's back on this page.\n\nIf you have any questions, contact us on our telegram https://t.me/hodlerocom");
-            setTotalPurchased(prevState => {
-              let newTotal = Number(prevState) + Number(event.returnValues.tokensBought)
-              let number = Number(newTotal);
-              console.log("New total purchase");
-              return number;
-            })
-          }
-        })
-        .on('changed', function (event) {
-          // remove event from local database
-        })
-        .on('error', console.error);
-
-
-
-
-      contract.events.presaleCompleteMinCap({
-        fromBlock: blockNumber
-      }, function (error, event) {
-        console.log("EVENT HAPPENED!", event)
-      })
-        .on('data', async function (event) {
-          console.log("Presale comlpete event", event);
-          swal("✅ Soft cap hit!", "We have reached a milestone HODLERS!\n We have raised We can now consider ourselfes a success!\nWe are now truely on the way to the moon, the team will now get unlocked 60BNB to market with from the initial soft cap hit.");
-        })
-        .on('changed', function (event) {
-          // remove event from local database
-        })
-        .on('error', console.error);
-
-      contract.events.presaleCompleteMaxCap({
-        fromBlock: blockNumber
-      }, function (error, event) {
-        console.log("EVENT HAPPENED!", event)
-      })
-        .on('data', async function (event) {
-          console.log(event);
-          swal("✅ Hard cap hit!", "We have reached hard cap fellas!");
-        })
-        .on('changed', function (event) {
-          // remove event from local database
-        })
-        .on('error', console.error);
-
+      startListening();
     }
   }, [walletLoaded !== undefined && walletLoaded !== false && remainingTokens !== null])
-  const listenToEmits = async () => {
-
-  }
   const handleProvider = async (provider, selectedWallet) => {
 
     console.log("Handling provider, ", provider);
@@ -353,7 +365,7 @@ const Home = () => {
         }, 5000);
       } else {
         setcountdownunixwhitelist(timeleft);
-        setcountdownunix(timeleft);
+        // setcountdownunix(timeleft);
         setCountDownTimerWhitelist({
           min: minutes,
           sec: seconds,
@@ -397,6 +409,11 @@ const Home = () => {
   };
   const refreshMyDetails = async (addy) => {
     console.log("refreshing details");
+    // const mainWeb3Provider = new ethers.providers.Web3Provider(
+    //   new Web3.providers.HttpProvider(
+    //     "https://data-seed-prebsc-1-s1.binance.org:8545/"
+    //   )
+    // );
     const HODLER = await new ethers.Contract(address, abi, mainWeb3Provider);
     console.log("Updating data:", addy);
     let addy2 = await HODLER.getPresaleWallet(addy);
@@ -420,7 +437,7 @@ const Home = () => {
     setWalletStats(addys);
   };
   const countdownEnd = async (endDate) => {
-    await updatePresaledetails();
+    // await updatePresaledetails();
     let _startDate = new Date().getTime();
     let _endDate = new Date(endDate).getTime();
     console.log(_endDate, _startDate);
@@ -437,6 +454,7 @@ const Home = () => {
       console.log(days + ":" + hours + ":" + minutes + ":" + seconds);
 
       if (timeleft < 0) {
+        console.log("Time is 0");
         clearInterval(interval2);
         setTimeout(async () => {
           await updatePresaledetails();
@@ -444,6 +462,7 @@ const Home = () => {
 
         // await getPresaleDetails();
       } else {
+        console.log("Not zero");
         setcountdownunixend(timeleft);
         setCountDownTimerWhitelist({
           min: minutes,
@@ -458,6 +477,11 @@ const Home = () => {
     return new Promise(async (resolve, reject) => {
       console.log("updating presale details");
       // const provider = new ethers.providers.Web3Provider(provider);
+      // let mainWeb3Provider = new ethers.providers.Web3Provider(
+      //   new Web3.providers.HttpProvider(
+      //     "https://data-seed-prebsc-1-s1.binance.org:8545/"
+      //   )
+      // );
       const HODLER = new ethers.Contract(address, abi, mainWeb3Provider);
 
       let details = await HODLER.getPresaleDetails();
@@ -511,6 +535,11 @@ const Home = () => {
     return new Promise(async (resolve, reject) => {
       console.log("getting presale details");
       // const provider = new ethers.providers.Web3Provider(provider);
+      // const mainWeb3Provider = new ethers.providers.Web3Provider(
+      //   new Web3.providers.HttpProvider(
+      //     "https://data-seed-prebsc-1-s1.binance.org:8545/"
+      //   )
+      // );
       const HODLER = new ethers.Contract(address, abi, mainWeb3Provider);
       console.log(HODLER);
 
