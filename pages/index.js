@@ -34,7 +34,7 @@ const Home = () => {
   const [selectedAccount2, setSelectedAccount2] = useState(null);
 
   const [timeLeft, setTimeLeft] = useState(null);
-  const [amountToBuy, setAmountToBuy] = useState(0);
+  const [amountToBuy, setAmountToBuy] = useState(2000);
   const [countdownunix, setcountdownunix] = useState(null);
   const [countdownunixwhitelist, setcountdownunixwhitelist] = useState(null);
   const [countdownunixend, setcountdownunixend] = useState(null);
@@ -43,8 +43,9 @@ const Home = () => {
   const [walletStats, setWalletStats] = useState(false);
   const [totalRaised, setTotalRaised] = useState(null);
   const [totalPurchased, setTotalPurchased] = useState(null);
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(0.033333333);
   const [isListening, setIsListening] = useState(false);
+  const [buyBtnEnabled, setBuyBtnEnabled] = useState(false);
   // const [mainWeb3Provider, setMainWeb3Provider] = useState(new ethers.providers.Web3Provider(
   //   new Web3.providers.HttpProvider(
   //     "https://data-seed-prebsc-1-s1.binance.org:8545/"
@@ -672,15 +673,26 @@ const Home = () => {
     }
     // await web3Modal.disconnect();
   };
+  const onChangePriceAmount = (e) => {
+    let value = e.target.value;
+    let perToken = 0.0000166666666666666666;
+    // divide = price / perToken
+    let divide = value / perToken;
+    setAmountToBuy(divide);
+    setPrice(value);
+  }
   const onChangeBuyAmount = (e) => {
     let value = e.target.value;
     let available = remainingTokens / 1000000000;
 
     if (available >= value) {
-      setAmountToBuy(value);
       console.log(1000000000 / remainingTokens);
       let price = (1000000000 / 60000000000000) * value;
+      setAmountToBuy(value);
       setPrice(price.toFixed(9));
+      if (price.toFixed(9) > 0.01) {
+
+      }
     } else {
       setAmountToBuy(remainingTokens / 1000000000);
       setPrice(
@@ -842,12 +854,12 @@ const Home = () => {
                   score={presaleDetails.percentageRaised}
                   progressColor={"purple"}
                 />
-                <div
+                <button
                   className="whitelistButton"
                   onClick={() => purchaseTokens()}
                 >
                   PURCHASE NOW
-                </div>
+                </button>
               </>
             ) : presaleDetails.status === "CANCELLED" ? (
               <>
@@ -900,9 +912,9 @@ const Home = () => {
           <div className="text-holder">
             <div className="text-holder-top-text">PRICE (BNB)</div>
             <input
+              onChange={(e) => { onChangePriceAmount(e) }}
               className="text-holder-bottom-input"
               type="number"
-              disabled
               defaultValue={price}
             ></input>
           </div>
