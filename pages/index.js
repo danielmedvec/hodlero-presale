@@ -16,7 +16,7 @@ var ls = require("local-storage");
 
 const mainWeb3Provider = new ethers.providers.Web3Provider(
   new Web3.providers.HttpProvider(
-    "https://data-seed-prebsc-1-s1.binance.org:8545/"
+    "https://data-seed-prebsc-2-s2.binance.org:8545/"
   )
 );
 
@@ -233,8 +233,8 @@ const Home = () => {
 
         // console.log("Wallet loaded before", prevState);
         let remainingTokens = await contract.methods.getPresaleDetailsP2().call();
-        console.log("remaining tokens", remainingTokens);
-        setRemainingTokens(remainingTokens);
+        console.log("remaining tokens", remainingTokens.tokensAvailable);
+        setRemainingTokens(remainingTokens.tokensAvailable);
 
         console.log("Wallet event", event.returnValues.wallet);
         if (event.returnValues.wallet.toLowerCase() == walletLoaded.toLowerCase()) {
@@ -548,8 +548,8 @@ const Home = () => {
       console.log(details);
       console.log(status);
       let detailsp2 = await HODLER.getPresaleDetailsP2();
-      console.log("SP2", parseInt(detailsp2));
-      let totalTokensSold = parseInt(detailsp2);
+      console.log("SP2", parseInt(detailsp2.tokensAvailable));
+      let totalTokensSold = parseInt(detailsp2.tokensAvailable);
       setRemainingTokens(totalTokensSold);
       let minCap = parseInt(details._minCap);
       let maxCap = parseInt(details._maxCap);
