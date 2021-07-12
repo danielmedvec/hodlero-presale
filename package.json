@@ -12,6 +12,7 @@
     "@sweetalert/with-react": "^0.1.1",
     "@walletconnect/web3-provider": "^1.4.1",
     "@web3-react/walletconnect-connector": "^6.2.0",
+    "axios": "^0.21.1",
     "ethers": "^5.4.0",
     "local-storage": "^2.0.0",
     "next": "11.0.1",
