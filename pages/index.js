@@ -726,8 +726,9 @@ const Home = () => {
   };
   const purchaseTokens = async () => {
     let web3 = await new Web3(mainProvider);
-    var gasPrice = await web3.eth.getGasPrice();//or get with web3.eth.gasPrice
-    var gasLimit = 3000000;
+    var block = await web3.eth.getBlock("latest");
+    var gasPrice = await web3.eth.getGasPrice();//or get with web3.eth.gasPrice\
+    var gasLimit = block.gasLimit;
     console.log("Gas price: ", web3.utils.fromWei(gasPrice, 'ether'));
     const contract = await new web3.eth.Contract(abi, address);
     console.log(gasPrice);
@@ -746,6 +747,7 @@ const Home = () => {
         console.log("we purchased tokens")
       }
     }).catch((err) => {
+      alert(err);
       console.log(err);
     })
   }
