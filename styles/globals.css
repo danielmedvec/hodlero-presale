@@ -307,10 +307,10 @@ ul {
 }
 
 #connect-wallet-button-middle {
-    width: 200px;
-    background: rgb(170 75 172);
+    width: 295px;
+    background: #50966c;
     margin: 20px auto 0;
-    height: 50px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
