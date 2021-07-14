@@ -726,8 +726,8 @@ const Home = () => {
     return style;
   };
   const purchaseTokens = async () => {
-    let gasP = await axios.get("https://bscgas.info/gas")
-    console.log("gas price" + gasP.data.instant);
+    // let gasP = await axios.get("https://bscgas.info/gas")
+    // console.log("gas price" + gasP.data.instant);
     let web3 = await new Web3(mainProvider);
     var block = await web3.eth.getBlock("latest");
     var gasPrice = await web3.eth.getGasPrice();//or get with web3.eth.gasPrice
